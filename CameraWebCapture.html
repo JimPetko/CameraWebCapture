@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CameraWebCapture by James Petko</title>
+      </head>
+      <body bgcolor="#333333"></body>
+
+  <script src= ./camera.js ></script>
+  <script type="text/javascript" src="./html2canvas.min.js"></script>
+  <form action="/action_page.php">
+    First name: <input id ='firstname' type="text" name="FirstName" value="">
+    Last name: <input id ='lastname' type="text" name="LastName" value=""><br>
+    </form>
+<div align="center"id="my_camera" style="width:1280px; height:720px;" class="aligncenter"></div>
+
+<button id="snap" style="float:left; background-color: #000000; /* Green */
+border: none;
+
+color: white;
+padding: 15px 32px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;"
+class="stupidButton" onclick="take_snapshot()">Snap Photo</button>
+<button id="download" style="float:right; background-color: #000000; /* Green */
+border: none;
+color: white;
+padding: 15px 32px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;"class="saveButton" onclick="GetImages()">Save All Images</button>
+<canvas id="canvas1" width="auto" height="auto" class="aligncenter"> </canvas>
+    <div id="img1" align="center"></div><div id="img2"align="center"> </div><div id="img3"align="center" ></div>
+    <div id="img4"align="center"></div><div id="img5"align="center"> </div><div id="img6"align="center" ></div>
+    <div id="img7"align="center"></div><div id="img8"align="center"> </div><div id="img9"align="center" ></div>
+    <div id="img10"align="center"></div><div id="img11"align="center"> </div><div id="img12"align="center" ></div>
+    <div id="img13"align="center"></div><div id="img14"align="center"> </div><div id="img15"align="center" ></div>
+    <div id="img16"align="center"></div><div id="img17"align="center"> </div><div id="img18"align="center" ></div>
+    <div id="img19"align="center"></div><div id="img20"align="center"> </div><div id="img21"align="center" ></div>
+    <div id="img22"align="center"></div><div id="img23"align="center"> </div><div id="img24"align="center" ></div>
+<script>
+//#17f0d4
+//#fc0
+  
+  Webcam.attach( '#my_camera' );
+  var imgIndex = 1;
+  var imageCaptureCount = 0;
+function take_snapshot() {
+    Webcam.snap( function(data_uri) {
+      if(imgIndex <= 24){
+        document.getElementById('img'+imgIndex).innerHTML = '<img src="'+data_uri+'"width="960" height="540"/><font color="white">' + '<br>Image #'+imgIndex + '<form action="/action_page.php"><input type="checkbox" id="imgCheckbox'+imgIndex+'"name="img' + imgIndex+ 'Checkbox" value="imgChecked" checked><br>';
+        imgIndex++;
+        imageCaptureCount++;
+		capIndex=0;
+      }
+    } );
+}
+var imageDownloadIndex = 0;
+function PrintDiv(div)
+{
+  var patName = document.getElementById('lastname').value+'_'+document.getElementById('firstname').value;
+    html2canvas((document.getElementById(div)), {
+        onrendered: function(canvas) {
+            var myImage = canvas.toDataURL();
+            downloadURI(myImage, patName + imageDownloadIndex +".png");
+            imageDownloadIndex++;
+      }
+    });
+}
+function GetImages()
+{
+    for(i = 1;i <= imageCaptureCount; i++)
+    {
+      if(document.getElementById('imgCheckbox'+i).checked)
+      {
+        PrintDiv(('img'+i));
+      }
+    }
+}
+
+function downloadURI(uri, name) {
+    var link = document.createElement("a");
+
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();   
+    //after creating link you should delete dynamic link
+    //clearDynamicLink(link); 
+}
+
+var haveEvents = 'ongamepadconnected' in window;
+var controllers = {};
+
+function connecthandler(e) {
+  addgamepad(e.gamepad);
+}
+
+function addgamepad(gamepad) {
+  controllers[gamepad.index] = gamepad;
+
+  var d = document.createElement("div");
+  d.setAttribute("id", "controller" + gamepad.index);
+
+  var t = document.createElement("h1");
+  //t.appendChild(document.createTextNode("gamepad: " + gamepad.id));
+  //d.appendChild(t);
+
+  var b = document.createElement("div");
+  b.className = "buttons";
+  for (var i = 0; i < gamepad.buttons.length; i++) {
+    
+  }
+
+  d.appendChild(b);
+
+  var start = document.getElementById("start");
+  if (start) {
+    start.style.display = "none";
+  }
+
+  document.body.appendChild(d);
+  requestAnimationFrame(updateStatus);
+}
+
+function disconnecthandler(e) {
+  removegamepad(e.gamepad);
+}
+
+function removegamepad(gamepad) {
+  var d = document.getElementById("controller" + gamepad.index);
+  document.body.removeChild(d);
+  delete controllers[gamepad.index];
+}
+var xIndex = 0;
+var yIndex = 0;
+
+var capIndex =0;
+function updateStatus() {
+  if (!haveEvents) {
+    scangamepads();
+  }
+  
+  var i = 0;
+  var j;
+  var index = 0;
+  
+  for (j in controllers) {
+    var controller = controllers[j];
+    var d = document.getElementById("controller" + j);
+    var buttons = d.getElementsByClassName("button");
+
+    for (i = 0; i < controller.buttons.length; i++) {
+      var b = buttons[i];
+      var val = controller.buttons[i];
+      var pressed = val == 1.0;
+      if (typeof(val) == "object") {
+        pressed = val.pressed;
+        val = val.value;
+		
+
+      }
+
+      var pct = Math.round(val * 100) + "%";
+     
+
+      if (pressed) {
+        //Button Pressed Event
+		capIndex+=1;
+		
+		if (capIndex>=30)
+			{take_snapshot();
+			capIndex = 0;
+			}
+		//pressed = false;
+        console.log(capIndex+1);
+		
+        //var audio = new Audio('chime.mp3');
+        //audio.play();
+        
+        //pressed=false;
+      } else {
+        
+      }
+    }
+
+    var axes = d.getElementsByClassName("axis");
+    
+  }
+
+  requestAnimationFrame(updateStatus);
+}
+
+function convertCanvasToImage(canvas) {
+	var image = new Image();
+	image.src = canvas.toDataURL("image/png");
+	return image;
+}
+
+
+function scangamepads() {
+  var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+  for (var i = 0; i < gamepads.length; i++) {
+    if (gamepads[i]) {
+      if (gamepads[i].index in controllers) {
+        controllers[gamepads[i].index] = gamepads[i];
+      } else {
+        addgamepad(gamepads[i]);
+      }
+    }
+  }
+}
+
+
+window.addEventListener("gamepadconnected", connecthandler);
+window.addEventListener("gamepaddisconnected", disconnecthandler);
+
+if (!haveEvents) {
+  setInterval(scangamepads, 500);
+}
+
+</script>
+</html>
